@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://libs.zappar.com/zappar-aframe/0.3.29/zappar-aframe.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.0/dist/aframe-extras.min.js"></script>
+    <script src="https://rawgit.com/nicolocarpignoli/nicolocarpignoli.github.io/master/ar-click-events/events.js"></script>
+    <script src="script.js"></script>
+    <meta charset="utf-8"/>
+    <title>Фотобудка</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI ELEMENTS */
+        .btn {
+            background-color: #2c5ccb;
+            opacity: 0.7;
+            color: white;
+            text-align: center;
+            font-family: "Montserrat", sans-serif;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        #button-container {
+            position: absolute;
+            margin: 0px auto;
+            bottom: 0;
+            padding-bottom: -100px;
+            left: 0;
+            /*top: 0;*/
+            width: 100%;
+            height: 10vh;
+            display: flex;
+            flex-direction: row;
+            opacity: 0.7;
+        }
+
+        .mask-btn {
+            flex: auto;
+        }
+
+        .header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 8vh;
+            background-color: #a3bee6;
+            opacity: 0.6;
+        }
+
+        .image {
+            height: 50px;
+            width: 50px;
+            margin-left: 2px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        @media screen and (orientation: landscape) {
+            .header {
+                position: fixed;
+                width: 2.65em;
+                height: 100%;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+<a-scene>
+    <!-- Ask user for camera permissions, display some text if permission is denied -->
+    <a-entity zappar-permissions-ui id="permissions"></a-entity>
+    <!-- shows a full-page dialog that informs the user they're using an unsupported browser -->
+    <a-entity zappar-compatibility-ui id="compatibility"></a-entity>
+
+
+    <a-camera
+            zappar-camera="user-facing: true;"
+            cursor="rayOrigin:mouse; fuse: false;"
+            raycaster="objects: .interactive"
+    ></a-camera>
+
+    <!-- Setup our face tracker -->
+    <a-entity zappar-face id="my-face-tracker">
+        <!-- Include a head mask object that will make sure the user's head appears in the center of our helmet -->
+        <a-entity zappar-head-mask="face:#my-face-tracker;"></a-entity>
+
+        <a-entity
+                id="blackclean"
+                visible="false"
+                gltf-model="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/nerpaneft_06.glb?v=1646894665009"
+                position="0 0.2 0"
+                scale="0.7 0.7 0.7"
+                class="interactive"
+                update_target
+                material="transparent: true; opacity: 0.5"
+        >
+            <a-plane
+                    position="0 2.5 0"
+                    scale="4 4 4"
+                    src="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/%D0%91%D0%B5%D0%B7%20%D0%BD%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F44_20220310210841.png?v=1646935928583"
+                    opacity="0.7"
+            ></a-plane>
+        </a-entity>
+
+
+        <!-- Include a 3D model inside our face tracker -->
+        <a-entity
+                id="fox"
+                visible="false"
+                gltf-model="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/babraglaz.glb?v=1646943427525"
+                position="0.4 -1.15 -0.02"
+                rotation="0 90 0"
+                scale="1.2 1.2 1.2"
+                animation-mixer
+        ></a-entity>
+
+        <a-entity
+                id="tiger"
+                visible="false"
+                gltf-model="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/%D1%80%D1%8B%D0%B1%D0%B0_%D0%B0%D0%BD%D0%B8%D0%BC%D0%B0%D1%86%D0%B8%D1%8F.glb?v=1646941138310"
+                animation-mixer
+                position="2.5 -4 -7"
+                rotation="0 -90 0"
+                scale="1 1 1"
+        >
+
+
+        </a-entity>
+
+        <a-entity
+                id="whiteclean"
+                visible="false"
+                gltf-model="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/nerpachist_06.glb?v=1646822584551"
+                animation-mixer
+                position="0 0.25 -0.35"
+                scale="0.75 0.75 0.75"
+        ></a-entity>
+
+    </a-entity>
+
+</a-scene>
+<div id="button-container">
+    <div id="prev" class="btn mask-btn"><<</div>
+    <div id="reset" class="btn mask-btn">Take photo</div>
+    <div id="next" class="btn mask-btn">>></div>
+</div>
+<header class="header">
+    <a href="https://available-hypnotic-dungeon.glitch.me" id="b1" class="backbtn"><img class="image"
+                                                                                        src="https://cdn.glitch.global/ea4fb36b-d3d7-4284-8b6c-ecc4434f6d89/%D1%81%D1%82%D0%B0%D1%82%20%D1%81%D0%BB%D1%83%D0%B6%20%D0%BD%D0%BE%D1%83%D1%825%20(1).png?v=1646947190544"
+                                                                                        alt="Назад"></a>
+</header>
+</body>
+</html>
