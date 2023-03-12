@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://libs.zappar.com/zappar-aframe/0.3.29/zappar-aframe.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Интерактивная галерея</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+      /* UI ELEMENTS */
+      .btn {
+        background-color: rgba(52, 75, 96, 0.5);
+        color: white;
+        text-align: center;
+        font-family: "Montserrat", sans-serif;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .pressed_btn {
+        background-color: rgba(52, 75, 96, 0.9);
+      }
+
+      #button-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+      .mask-btn {
+        flex: auto;
+      }
+      
+      #header{
+        osition: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 20px
+        display: flex;
+        flex-direction: row;
+        background-color: blue;
+      }
+    </style>
+
+    <script>
+
+
+      var nowState = 0;
+      var prevState = 0;
+      var Pictures = ["https://cdn.glitch.global/ae423b91-6b62-491c-8ffa-d84120ad18b9/markus-winkler-OR_QZVvgH1I-unsplash.jpg?v=1646721589687",
+                      "https://cdn.glitch.global/ae423b91-6b62-491c-8ffa-d84120ad18b9/daria-gordova-T-ZTCAdF70E-unsplash.jpg?v=1646721557505",
+                     "https://cdn.glitch.global/ae423b91-6b62-491c-8ffa-d84120ad18b9/oleksandr-sushko-SPvQmwQnotc-unsplash.jpg?v=1646721598376",
+                     "https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/sergey-pesterev-y-b_FOmJXdg-unsplash.jpg?v=1646736205685",
+                     "https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/sergey-mind-pQtra-yNlY8-unsplash.jpg?v=1646736228988"];
+
+      var Videos = [
+        "https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/pexels-nadezhda-moryak-8678955.mp4?v=1646736937164"
+      ]
+      var isPhoto = true
+      
+      AFRAME.registerComponent('stopmusic', {
+          init: function () {
+              this.el.addEventListener('click', () => {
+                  mus.sound.volume=0;
+              });
+          },
+      });
+      
+      AFRAME.registerComponent('next', {
+          init: function () {
+              this.el.addEventListener('click', () => {
+                  prevState = nowState;
+                  nowState += 1;
+          
+                  if(nowState == 1){
+                    pic.setAttribute('visible', "false");
+                    vid.setAttribute('visible', "false");
+                    mod.setAttribute('visible', "true");
+                    mod.emit("startAnimation");  
+                  }
+                  else{
+                    mod.setAttribute('visible', "false");
+                    pic.setAttribute('visible', "true");
+                  }
+                  if (nowState >= Pictures.length && isPhoto) {
+                    isPhoto = false
+                    nowState = 0;
+                    pic.setAttribute('visible', "false");
+                    vid.setAttribute('visible', "true");
+
+                  }
+                else if (nowState >= Videos.length && !isPhoto){
+                    isPhoto = true
+                    nowState = 0;
+                    pic.setAttribute('visible', "true");
+                    vid.setAttribute('visible', "false");
+                }
+                if(isPhoto) {
+                  pic.setAttribute('src', Pictures[nowState]);
+                }
+                else {
+                    id.pause();
+                  vid.setAttribute('src', Videos[nowState]);
+                  vid.play();
+                }
+
+              });
+          },
+      });
+      
+      
+      AFRAME.registerComponent('prev', {
+        init: function () {
+              this.el.addEventListener('click', () => {
+              prevState = nowState;
+              nowState -= 1;
+                
+                if(nowState == 1){
+                    pic.setAttribute('visible', "false");
+                    vid.setAttribute('visible', "false");
+                    mod.setAttribute('visible', "true");
+                    
+                  
+                  }
+                  else{
+                    mod.setAttribute('visible', "false");
+                    pic.setAttribute('visible', "true");
+                  }
+
+              if (nowState < 0 && isPhoto) {
+                  isPhoto = false
+                  nowState = Videos.length - 1;
+                  pic.setAttribute('visible', "false");
+                  vid.setAttribute('visible', "true");
+
+                }
+                
+              else if (nowState < 0 && !isPhoto){
+                  isPhoto = true
+                  nowState = Pictures.length - 1;
+                  pic.setAttribute('visible', "true");
+                  vid.pause();
+                  vid.setAttribute('visible', "false");
+                  
+              }
+              if(isPhoto) {
+                pic.setAttribute('src', Pictures[nowState]);
+              }
+              else {
+                vid.pause();
+                vid.setAttribute('src', Videos[nowState]);
+                vid.play();
+              }
+              });
+
+        },
+        });
+      
+    </script>
+    
+  </head>
+  <body>
+    
+    <script>
+      var audio = document.getElementById('audio');
+      audio.play();
+      audio.volume = 0.5;
+      audio.loop =true;
+      //audio.play();
+    </script>
+    <!-- START OUR A-FRAME SCENE -->
+    <a-scene loading-screen="backgroundColor: #344A60">
+      <!-- Ask user for camera permissions, display some text if permission is denied -->
+      <a-entity zappar-permissions-ui id="permissions"></a-entity>
+      <!-- shows a full-page dialog that informs the user they're using an unsupported browser -->
+      <a-entity zappar-compatibility-ui id="compatibility"></a-entity>
+
+    
+      <!-- END ASSET PRE-LOADING -->
+
+      <!-- CREATE A-FRAME CAMERA AND REPLACE IT WITH ZAPPAR'S CAMERA -->
+      <!-- ALLOW USER TO CLICK ON ELEMENTS BY ADDING CURSOR COMPONENT & IDENTIFY RAYCASTER OBJECTS FOR BETTER PERFORMANCE -->
+      <a-camera
+        zappar-camera
+        cursor="rayOrigin: mouse; fuse: false;"
+        raycaster="objects: .interactive"
+      ></a-camera>
+
+      <!-- SET UP OUR EXPERIENCE AS IMAGE TRACKING & GIVE IT AN IMAGE TO TRACK -->
+      <a-entity
+        zappar-image="target: https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/6.zpt?v=1646737940481"
+      >
+        
+        <!-- Have a group that will only become visible when the target image comes into view-->
+        <a-entity visibility-changer>
+          <a-entity
+          
+          id="seal"
+         
+          gltf-model="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/%D1%81%D1%82%D0%B0%D1%82%D1%83%D1%8F2%D0%BF%D1%80%D0%B0%D0%B2.glb?v=1646899831313"
+          scale="0.1 0.1 0.1"
+          position="0 -0.3 0.2"
+          visible="false"
+          rotation="10 -30 0"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"          
+          
+          >
+          </a-entity>
+          
+          <a-sound id="mus" volume = "1" src="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/Wynton-Kelly_-_Born-to-be-blue_(muzichka.cc).mp3?v=1646813609583" autoplay="true" position="0 2 5" loop="true"></a-sound>
+          
+         <!-- <a-plane
+            position="0 -1 0.5" 
+            height="0.4"
+            width="1.25"
+           
+                   >
+           <audio controls id="audio" src="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/Wynton-Kelly_-_Born-to-be-blue_(muzichka.cc).mp3?v=1646813609583"></audio>       
+          </a-plane>-->
+  
+          <a-plane
+            id="pic"
+            visible="true"
+            src="https://cdn.glitch.global/ae423b91-6b62-491c-8ffa-d84120ad18b9/markus-winkler-OR_QZVvgH1I-unsplash.jpg?v=1646721589687"
+            material="transparent: true; opacity: 1"
+            width="2.2"
+            height="1.5"
+            scale = "0.9 0.9 0.9"
+            position="0 0 -0.01"
+            animation="property: scale; to: 1.15 1.15 1.15; loop: true; dur: 10000"          
+
+          >
+          </a-plane>
+
+          
+          <a-video
+            visible="false"
+            id="vid"
+            src="https://cdn.glitch.global/b2c9d4db-9118-477a-a8a8-8bde239b66a5/demo.mp4?v=1646682289059"
+            scale="2 2 2"
+          ></a-video>
+          
+          <a-plane
+            id="prev"
+            class="interactive"
+            prev
+            src="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/2849832_arrows_navigation_arrow_left_back_icon.png?v=1646725920618"
+            position="-1.25 0 0"
+            scale="0.7 0.7 0.7"
+            material="alpha-test:0.5"
+            opacity="0.6"
+            animation="property: position; to: -1.4 0 0; loop: true; dur: 1500"          
+          >
+          </a-plane>
+
+          <a-plane
+            id="next"
+            class="interactive"
+            next
+            src="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/2849833_arrows_navigation_forward_arrow_right_icon.png?v=1646725932770"
+            position="1.25 0 0"
+            scale="0.7 0.7 0.7"
+            material="alpha-test:0.5"
+            opacity = "0.6"
+            animation="property: position; to: 1.4 0 0; loop: true; dur: 1500" 
+            
+          ></a-plane>
+          
+          <a-plane
+            id="text"
+            class="interactive"
+  
+            src="https://cdn.glitch.global/8d7e7f9a-0802-4a50-bb28-c1ea52e1d00b/rgklsfhdbfdx.png?v=1646741813581"
+            width="3"
+            height="0.6"
+            position="0 0.8 0.2"
+            scale="0.7 0.7 0.7"
+            material="alpha-test:0.5"
+            opacity="0.7"
+          ></a-plane>
+          
+        </a-entity>
+        
+        
+        
+        <!-- END VISIBILITY CHANGER -->
+      </a-entity>
+      <!-- END TRACKING EXPERIENCE -->
+      
+    </a-scene>
+    <!-- END SCENE -->
+    <!--iv id="button-container">
+      <div id="change" class="btn mask-btn">Light on</div>
+      <div id="congrats" class="btn mask-btn">New text</div>
+    </div>-->
+    
+
+    <script>
+      const pic = document.getElementById("pic");
+      const vid = document.getElementById("vid");
+      const mod = document.getElementById("seal");
+      const mus = document.getElementById("mus");
+    </script>
+    
+  </body>
+</html>
